@@ -13,10 +13,13 @@ on:
         options:
           - staging
           - production
+
+# Evita ejecuciones simultáneas del mismo grupo
 concurrency:
   group: deployment-${{ github.ref }}
   cancel-in-progress: false
 
+# Permisos mínimos requeridos para OIDC
 permissions:
   id-token: write
   contents: read
@@ -28,17 +31,17 @@ jobs:
       node-versions: '["20", "22"]'
       run-lint: true
 
+  # Staging siempre corre (push o manual). Producción pasa por staging primero.
   deploy-staging:
     name: Deploy to Staging
     needs: quality-gate
-    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
     runs-on: ubuntu-latest
     environment:
       name: staging
       url: https://staging.example.com
 
     steps:
-      - name: Descargar Artifact de compilación
+      - name: Descargar artifact de compilación
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
@@ -53,19 +56,21 @@ jobs:
       - name: Desplegar en Staging
         run: |
           echo "Desplegando en Staging..."
-          # aws s3 sync dist/ s3://staging-app-bucket/
+          # aws s3 sync dist/ s3://staging-app-bucket/ --delete
 
+  # Solo en push a main, o manual eligiendo "production".
+  # Para exigir aprobación: Settings → Environments → production → Required reviewers.
   deploy-production:
     name: Deploy to Production
     needs: deploy-staging
-    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+    if: github.event_name == 'push' || github.event.inputs.environment == 'production'
     runs-on: ubuntu-latest
     environment:
       name: production
       url: https://example.com
 
     steps:
-      - name: Descargar Artifact de compilación
+      - name: Descargar artifact de compilación
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
@@ -79,4 +84,5 @@ jobs:
 
       - name: Despliegue en Producción
         run: |
-          echo "Ejecutando despliegue Zero-Downtime en Producción..."
+          echo "Ejecutando despliegue en Producción..."
+          # aws s3 sync dist/ s3://production-app-bucket/ --delete

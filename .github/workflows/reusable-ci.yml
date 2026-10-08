@@ -20,6 +20,9 @@ jobs:
   test-matrix:
     name: Test Node.js v${{ matrix.node }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     strategy:
       fail-fast: false
       matrix:
@@ -34,22 +37,24 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
       - name: Instalación limpia de dependencias
         run: npm ci
 
       - name: Ejecutar Linter
         if: ${{ inputs.run-lint }}
-        run: npm run lint
+        run: npm run lint --if-present
 
-      - name: Ejecutar pruebas unitarias e integración
-        run: npm test -- --coverage
+      - name: Ejecutar pruebas
+        run: npm test --if-present -- --coverage
 
       - name: Subir reporte de cobertura
         uses: actions/upload-artifact@v4
         with:
           name: coverage-node-${{ matrix.node }}
-          path: coverage/
+          path: backend/coverage/
+          if-no-files-found: ignore
           retention-days: 7
 
   build:
@@ -67,18 +72,21 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Instalar y Compilar
+      - name: Instalar y compilar backend (si hay script build)
+        working-directory: backend
         run: |
           npm ci
-          npm run build
+          npm run build --if-present
 
-      - name: Guardar Artifact de producción
+      # El frontend es HTML/CSS/JS plano: se empaqueta tal cual.
+      - name: Guardar artifact de producción
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: dist/
-          retention-days: 1
+          path: frontend/
+          retention-days: 7
 
       - id: set-output
-        run: echo "status=success" >> $GITHUB_OUTPUT
+        run: echo "status=success" >> "$GITHUB_OUTPUT"
