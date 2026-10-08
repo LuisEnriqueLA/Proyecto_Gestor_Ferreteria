@@ -1,88 +1,24 @@
-name: CD & Deployment Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Entorno de despliegue manual'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - staging
-          - production
+    branches:
+      - main
 
-# Evita ejecuciones simultáneas del mismo grupo
-concurrency:
-  group: deployment-${{ github.ref }}
-  cancel-in-progress: false
+  pull_request:
+    branches:
+      - main
 
-# Permisos mínimos requeridos para OIDC
 permissions:
-  id-token: write
   contents: read
 
 jobs:
+
   quality-gate:
+    name: Quality Gate
+
     uses: ./.github/workflows/reusable-ci.yml
+
     with:
       node-versions: '["20", "22"]'
       run-lint: true
-
-  # Staging siempre corre (push o manual). Producción pasa por staging primero.
-  deploy-staging:
-    name: Deploy to Staging
-    needs: quality-gate
-    runs-on: ubuntu-latest
-    environment:
-      name: staging
-      url: https://staging.example.com
-
-    steps:
-      - name: Descargar artifact de compilación
-        uses: actions/download-artifact@v5
-        with:
-          name: build-artifact
-          path: dist/
-
-      - name: Autenticación OIDC con AWS
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::LuisEnriqueLA:role/GitHubActionsStagingRole
-          aws-region: us-east-1
-
-      - name: Desplegar en Staging
-        run: |
-          echo "Desplegando en Staging..."
-          # aws s3 sync dist/ s3://staging-app-bucket/ --delete
-
-  # Solo en push a main, o manual eligiendo "production".
-  # Para exigir aprobación: Settings → Environments → production → Required reviewers.
-  deploy-production:
-    name: Deploy to Production
-    needs: deploy-staging
-    if: github.event_name == 'push' || github.event.inputs.environment == 'production'
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://example.com
-
-    steps:
-      - name: Descargar artifact de compilación
-        uses: actions/download-artifact@v5
-        with:
-          name: build-artifact
-          path: dist/
-
-      - name: Autenticación OIDC con AWS
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::LuisEnriqueLA:role/GitHubActionsProductionRole
-          aws-region: us-east-1
-
-      - name: Despliegue en Producción
-        run: |
-          echo "Ejecutando despliegue en Producción..."
-          # aws s3 sync dist/ s3://production-app-bucket/ --delete

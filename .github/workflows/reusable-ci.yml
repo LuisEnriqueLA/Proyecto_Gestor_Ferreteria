@@ -6,40 +6,47 @@ on:
       node-versions:
         required: false
         type: string
-        default: '["18", "20", "22"]'
+        default: '["20", "22"]'
+
       run-lint:
         required: false
         type: boolean
         default: true
+
     outputs:
       build-status:
         description: "Resultado de la construcción"
         value: ${{ jobs.build.outputs.status }}
 
 jobs:
+
   test-matrix:
     name: Test Node.js v${{ matrix.node }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     defaults:
       run:
         working-directory: backend
+
     strategy:
       fail-fast: false
+
       matrix:
         node: ${{ fromJson(inputs.node-versions) }}
 
     steps:
+
       - name: Checkout del código
         uses: actions/checkout@v5
 
-      - name: Configurar Node.js v${{ matrix.node }} con caché
+      - name: Configurar Node.js v${{ matrix.node }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: Instalación limpia de dependencias
+      - name: Instalar dependencias
         run: npm ci
 
       - name: Ejecutar Linter
@@ -57,13 +64,19 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+
   build:
     name: Build & Package
+
     needs: test-matrix
-    runs-on: ubuntu-latest
+
+    runs-on: ubuntu-24.04
+
     outputs:
       status: ${{ steps.set-output.outputs.status }}
+
     steps:
+
       - name: Checkout del código
         uses: actions/checkout@v5
 
@@ -71,22 +84,24 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: Instalar y compilar backend (si hay script build)
+      - name: Instalar dependencias y compilar backend
         working-directory: backend
         run: |
           npm ci
           npm run build --if-present
 
-      # El frontend es HTML/CSS/JS plano: se empaqueta tal cual.
       - name: Guardar artifact de producción
         uses: actions/upload-artifact@v5
         with:
           name: build-artifact
-          path: frontend/
+          path: |
+            backend/
+            frontend/
           retention-days: 7
 
-      - id: set-output
+      - name: Marcar build como exitoso
+        id: set-output
         run: echo "status=success" >> "$GITHUB_OUTPUT"
