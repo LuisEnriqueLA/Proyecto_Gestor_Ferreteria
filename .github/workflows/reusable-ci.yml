@@ -30,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Node.js v${{ matrix.node }} con caché
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
@@ -50,7 +50,7 @@ jobs:
         run: npm test --if-present -- --coverage
 
       - name: Subir reporte de cobertura
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-node-${{ matrix.node }}
           path: backend/coverage/
@@ -65,10 +65,10 @@ jobs:
       status: ${{ steps.set-output.outputs.status }}
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
           cache: 'npm'
@@ -82,7 +82,7 @@ jobs:
 
       # El frontend es HTML/CSS/JS plano: se empaqueta tal cual.
       - name: Guardar artifact de producción
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-artifact
           path: frontend/

@@ -42,15 +42,15 @@ jobs:
 
     steps:
       - name: Descargar artifact de compilación
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build-artifact
           path: dist/
 
       - name: Autenticación OIDC con AWS
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsStagingRole
+          role-to-assume: arn:aws:iam::LuisEnriqueLA:role/GitHubActionsStagingRole
           aws-region: us-east-1
 
       - name: Desplegar en Staging
@@ -71,15 +71,15 @@ jobs:
 
     steps:
       - name: Descargar artifact de compilación
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build-artifact
           path: dist/
 
       - name: Autenticación OIDC con AWS
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsProductionRole
+          role-to-assume: arn:aws:iam::LuisEnriqueLA:role/GitHubActionsProductionRole
           aws-region: us-east-1
 
       - name: Despliegue en Producción
