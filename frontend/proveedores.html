@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Proveedores</title>
+
+    <link rel="stylesheet" href="./css/estilos.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Proveedores</h1>
+    </header>
+
+
+    <main>
+
+        <section>
+
+            <h2 id="tituloFormulario">
+                Agregar proveedor
+            </h2>
+
+            <form id="formularioProveedor">
+
+                <input
+                    type="hidden"
+                    id="id"
+                >
+
+
+                <label for="nombre">
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre"
+                    required
+                >
+
+
+                <label for="telefono">
+                    Telefono
+                </label>
+
+                <input
+                    type="text"
+                    id="telefono"
+                >
+
+
+                <label for="correo">
+                    Correo
+                </label>
+
+                <input
+                    type="email"
+                    id="correo"
+                >
+
+
+                <button type="submit">
+                    Guardar proveedor
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnCancelar"
+                >
+                    Cancelar
+                </button>
+
+            </form>
+
+        </section>
+
+        <section>
+
+            <h2>Lista de proveedores</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Nombre</th>
+
+                        <th>Telefono</th>
+
+                        <th>Correo</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="tablaProveedores">
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+
+    <script src="./js/model/proveedores.js"></script>
+
+    <script src="./js/view/proveedoresVista.js"></script>
+
+    <script src="./js/controller/proveedoresController.js"></script>
+
+</body>
+
+</html>

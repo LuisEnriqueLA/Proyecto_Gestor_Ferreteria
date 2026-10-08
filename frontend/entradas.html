@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Entradas</title>
+
+    <link rel="stylesheet" href="./css/estilos.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Registro de Entradas</h1>
+    </header>
+
+    <main>
+
+        <section>
+
+            <h2>Registrar entrada</h2>
+
+            <form id="formularioEntrada">
+
+                <label for="producto">
+                    Producto
+                </label>
+
+                <select id="producto" required>
+                    <option value="">
+                        Selecciona un producto
+                    </option>
+                </select>
+
+
+                <label for="proveedor">
+                    Proveedor
+                </label>
+
+                <select id="proveedor" required>
+                    <option value="">
+                        Selecciona un proveedor
+                    </option>
+                </select>
+
+
+                <label for="cantidad">
+                    Cantidad
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidad"
+                    min="1"
+                    required
+                >
+
+
+                <button type="submit">
+                    Registrar entrada
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <section>
+
+            <h2>Historial de entradas</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Producto</th>
+                        <th>Proveedor</th>
+                        <th>Cantidad</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaEntradas"></tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+
+    <script src="./js/model/entradas.js"></script>
+    <script src="./js/view/entradasVista.js"></script>
+    <script src="./js/controller/entradasController.js"></script>
+
+</body>
+</html>

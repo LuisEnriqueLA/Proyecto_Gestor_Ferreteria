@@ -1,0 +1,28 @@
+CREATE DATABASE inventario;
+
+USE inventario;
+
+CREATE TABLE productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    detalles VARCHAR(255),
+    existencia INT NOT NULL,
+    activo TINYINT(1) NOT NULL DEFAULT 1
+);
+
+INSERT INTO productos (nombre, precio, detalles, existencia, activo)
+VALUES
+('Martillo', 22.50, 'Un pinche martillo', 10, 1),
+('Destornillador', 25.00, 'Un pinche destornillador', 5, 1),
+('Llave inglesa', 30.00, 'Una pinche llave inglesa', 0, 1);
+
+USE inventario;
+
+CREATE TABLE proveedores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    correo VARCHAR(100),
+    activo TINYINT(1) NOT NULL DEFAULT 1
+);

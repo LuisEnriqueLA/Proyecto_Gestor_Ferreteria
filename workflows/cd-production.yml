@@ -1,0 +1,82 @@
+name: CD & Deployment Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Entorno de despliegue manual'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+concurrency:
+  group: deployment-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  quality-gate:
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      node-versions: '["20", "22"]'
+      run-lint: true
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+
+    steps:
+      - name: Descargar Artifact de compilación
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: dist/
+
+      - name: Autenticación OIDC con AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsStagingRole
+          aws-region: us-east-1
+
+      - name: Desplegar en Staging
+        run: |
+          echo "Desplegando en Staging..."
+          # aws s3 sync dist/ s3://staging-app-bucket/
+
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.com
+
+    steps:
+      - name: Descargar Artifact de compilación
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: dist/
+
+      - name: Autenticación OIDC con AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsProductionRole
+          aws-region: us-east-1
+
+      - name: Despliegue en Producción
+        run: |
+          echo "Ejecutando despliegue Zero-Downtime en Producción..."
